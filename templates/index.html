@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشاور بهینه‌سازی SX-EW</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 10px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input[type="number"] {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            direction: ltr;
+        }
+        button {
+            grid-column: span 2;
+            background-color: #0056b3;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #004494;
+        }
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            background-color: #eef7ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .result-item {
+            font-size: 1.1em;
+        }
+        .result-item strong {
+            color: #0056b3;
+        }
+        .notes {
+            grid-column: span 2;
+            margin-top: 15px;
+            font-style: italic;
+            color: #555;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-left: 4px solid #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>مشاور بهینه‌سازی SX-EW</h1>
+
+        <form action="/calculate" method="post">
+            <h2>۱. مشخصات واحد استخراج حلالی (SX)</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="pls_flow">دبی محلول باردار (m³/h)</label>
+                    <input type="number" id="pls_flow" name="pls_flow" value="{{ request.form.pls_flow | default(100) }}" step="any" required>
+                </div>
+                <div class="form-group">
+                    <label for="pls_cu">غلظت مس محلول باردار (g/L)</label>
+                    <input type="number" id="pls_cu" name="pls_cu" value="{{ request.form.pls_cu | default(3.0) }}" step="any" required>
+                </div>
+                <div class="form-group">
+                    <label for="org_flow">دبی فاز آلی (m³/h)</label>
+                    <input type="number" id="org_flow" name="org_flow" value="{{ request.form.org_flow | default(100) }}" step="any" required>
+                </div>
+                <div class="form-group">
+                    <label for="lean_electrolyte_cu">غلظت مس الکترولیت فقیر (g/L)</label>
+                    <input type="number" id="lean_electrolyte_cu" name="lean_electrolyte_cu" value="{{ request.form.lean_electrolyte_cu | default(35.0) }}" step="any" required>
+                </div>
+            </div>
+
+            <h2>۲. مشخصات واحد الکترووینینگ (EW)</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="current_density">چگالی جریان (A/m²)</label>
+                    <input type="number" id="current_density" name="current_density" value="{{ request.form.current_density | default(300) }}" step="any" required>
+                </div>
+                <div class="form-group">
+                    <label for="current_efficiency">راندمان جریانی (%)</label>
+                    <input type="number" id="current_efficiency" name="current_efficiency" value="{{ request.form.current_efficiency | default(95) }}" step="any" required>
+                </div>
+                <div class="form-group">
+                    <label for="num_cells">تعداد سلول‌ها</label>
+                    <input type="number" id="num_cells" name="num_cells" value="{{ request.form.num_cells | default(150) }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="cathodes_per_cell">تعداد کاتدها در هر سلول</label>
+                    <input type="number" id="cathodes_per_cell" name="cathodes_per_cell" value="{{ request.form.cathodes_per_cell | default(60) }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="plating_area">سطح مفید هر وجه کاتد (m²)</label>
+                    <input type="number" id="plating_area" name="plating_area" value="{{ request.form.plating_area | default(1.0) }}" step="any" required>
+                </div>
+            </div>
+
+            <button type="submit">محاسبه و بهینه‌سازی</button>
+        </form>
+
+        {% if results %}
+        <div id="results">
+            <h2>نتایج شبیه‌سازی</h2>
+            <div class="results-grid">
+                <div class="result-item"><strong>بازیابی مس (SX):</strong> {{ results.sx.sx_recovery }} %</div>
+                <div class="result-item"><strong>غلظت مس رافینیت:</strong> {{ results.sx.raffinate_cu }} g/L</div>
+                <div class="result-item"><strong>غلظت مس آلی باردار:</strong> {{ results.sx.loaded_organic_cu }} g/L</div>
+                <div class="result-item"><strong>غلظت مس الکترولیت غنی:</strong> {{ results.sx.rich_electrolyte_cu }} g/L</div>
+
+                <div class="result-item"><strong>تولید مس (EW):</strong> {{ results.ew.copper_production_tpd }} تن در روز</div>
+                <div class="result-item"><strong>مصرف انرژی ویژه:</strong> {{ results.ew.energy_consumption_kwh_per_ton }} kWh/ton</div>
+                <div class="result-item"><strong>ولتاژ سلول (تخمینی):</strong> {{ results.ew.cell_voltage_v }} V</div>
+                <div class="result-item"><strong>جریان کل رکتیفایر:</strong> {{ results.ew.total_current_a }} A</div>
+
+                {% if results.sx.consultant_notes_sx or results.ew.consultant_notes_ew or results.consultant_notes_general %}
+                <div class="notes">
+                    <h3>یادداشت‌های مشاور:</h3>
+                    {% if results.sx.consultant_notes_sx %}
+                        <p><strong>SX:</strong> {{ results.sx.consultant_notes_sx }}</p>
+                    {% endif %}
+                    {% if results.ew.consultant_notes_ew %}
+                        <p><strong>EW:</strong> {{ results.ew.consultant_notes_ew }}</p>
+                    {% endif %}
+                    {% if results.consultant_notes_general %}
+                        <p><strong>General:</strong> {{ results.consultant_notes_general }}</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
