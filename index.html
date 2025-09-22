@@ -3,151 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مشاور بهینه‌سازی SX-EW (نسخه استاتیک)</title>
+    <title>بهینه‌ساز و مشاور هوشمند SX-EW</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.6; margin: 20px; background-color: #f4f4f4; color: #333; }
-        .container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1, h2 { color: #0056b3; border-bottom: 2px solid #0056b3; padding-bottom: 10px; }
+        .container { max-width: 900px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1, h2, h3 { color: #0056b3; border-bottom: 2px solid #0056b3; padding-bottom: 10px; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .form-group { display: flex; flex-direction: column; }
         label { font-weight: bold; margin-bottom: 5px; }
         input[type="number"] { padding: 8px; border: 1px solid #ccc; border-radius: 4px; direction: ltr; }
-        button { grid-column: span 2; background-color: #0056b3; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        .button-group { display: flex; gap: 10px; grid-column: span 2; }
+        button { background-color: #0056b3; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; flex-grow: 1; }
         button:hover { background-color: #004494; }
-        .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background-color: #eef7ff; padding: 15px; border-radius: 5px; margin-top: 20px; }
-        .result-item { font-size: 1.1em; }
-        .result-item strong { color: #0056b3; }
+        button.optimizer { background-color: #28a745; }
+        button.optimizer:hover { background-color: #218838; }
+        .results-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;}
+        .results-box { background-color: #eef7ff; padding: 15px; border-radius: 5px; }
+        .results-box h3 { border-color: #6cb2f0; }
+        .result-item { margin-bottom: 8px; }
         .notes { grid-column: span 2; margin-top: 15px; font-style: italic; color: #555; background-color: #f8f9fa; padding: 10px; border-left: 4px solid #0056b3; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>مشاور بهینه‌سازی SX-EW (نسخه کلاینت ساید)</h1>
+        <h1>سیستم بهینه‌ساز و مشاور هوشمند SX-EW</h1>
 
         <form id="calculation-form">
             <h2>۱. مشخصات واحد استخراج حلالی (SX)</h2>
             <div class="form-grid">
-                <div class="form-group">
-                    <label for="pls_flow">دبی محلول باردار (m³/h)</label>
-                    <input type="number" id="pls_flow" name="pls_flow" value="100" step="any" required>
-                </div>
-                <div class="form-group">
-                    <label for="pls_cu">غلظت مس محلول باردار (g/L)</label>
-                    <input type="number" id="pls_cu" name="pls_cu" value="3.0" step="any" required>
-                </div>
-                <div class="form-group">
-                    <label for="org_flow">دبی فاز آلی (m³/h)</label>
-                    <input type="number" id="org_flow" name="org_flow" value="100" step="any" required>
-                </div>
-                <div class="form-group">
-                    <label for="lean_electrolyte_cu">غلظت مس الکترولیت فقیر (g/L)</label>
-                    <input type="number" id="lean_electrolyte_cu" name="lean_electrolyte_cu" value="35.0" step="any" required>
-                </div>
+                <div class="form-group"><label for="pls_flow">دبی PLS (m³/h)</label><input type="number" id="pls_flow" value="210" step="any"></div>
+                <div class="form-group"><label for="pls_cu">غلظت مس PLS (g/L)</label><input type="number" id="pls_cu" value="1.74" step="any"></div>
+                <div class="form-group"><label for="org_flow">دبی فاز آلی (m³/h)</label><input type="number" id="org_flow" value="221" step="any"></div>
+                <div class="form-group"><label for="lean_electrolyte_cu">غلظت مس الکترولیت فقیر (g/L)</label><input type="number" id="lean_electrolyte_cu" value="35.80" step="any"></div>
+                <div class="form-group"><label for="num_stages">تعداد مراحل استخراج</label><input type="number" id="num_stages" value="2"></div>
             </div>
 
             <h2>۲. مشخصات واحد الکترووینینگ (EW)</h2>
             <div class="form-grid">
-                <div class="form-group">
-                    <label for="current_density">چگالی جریان (A/m²)</label>
-                    <input type="number" id="current_density" name="current_density" value="300" step="any" required>
-                </div>
-                <div class="form-group">
-                    <label for="current_efficiency">راندمان جریانی (%)</label>
-                    <input type="number" id="current_efficiency" name="current_efficiency" value="95" step="any" required>
-                </div>
-                <div class="form-group">
-                    <label for="num_cells">تعداد سلول‌ها</label>
-                    <input type="number" id="num_cells" name="num_cells" value="150" required>
-                </div>
-                <div class="form-group">
-                    <label for="cathodes_per_cell">تعداد کاتدها در هر سلول</label>
-                    <input type="number" id="cathodes_per_cell" name="cathodes_per_cell" value="60" required>
-                </div>
-                <div class="form-group">
-                    <label for="plating_area">سطح مفید هر وجه کاتد (m²)</label>
-                    <input type="number" id="plating_area" name="plating_area" value="1.0" step="any" required>
-                </div>
+                <div class="form-group"><label for="current_density">چگالی جریان (A/m²)</label><input type="number" id="current_density" value="79.9" step="any"></div>
+                <div class="form-group"><label for="current_efficiency">راندمان جریانی (%)</label><input type="number" id="current_efficiency" value="95" step="any"></div>
+                <div class="form-group"><label for="num_cells">تعداد سلول‌ها</label><input type="number" id="num_cells" value="42"></div>
+                <div class="form-group"><label for="cathodes_per_cell">کاتدها در هر سلول</label><input type="number" id="cathodes_per_cell" value="30"></div>
+                <div class="form-group"><label for="plating_area">سطح هر وجه کاتد (m²)</label><input type="number" id="plating_area" value="1.0" step="any"></div>
             </div>
 
-            <button type="submit">محاسبه و بهینه‌سازی</button>
+            <div class="button-group">
+                <button type="submit" id="run-base-case">محاسبه سناریو پایه</button>
+                <button type="button" id="run-optimizer" class="optimizer">بهینه‌سازی (افزودن یک مرحله استخراج)</button>
+            </div>
         </form>
 
-        <div id="results-container">
-            <!-- Results will be dynamically injected here by JavaScript -->
-        </div>
+        <div class="results-container" id="results-container"></div>
     </div>
 
     <script src="js/sx_model.js"></script>
     <script src="js/ew_model.js"></script>
     <script>
-        document.getElementById('calculation-form').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the default form submission
+        const form = document.getElementById('calculation-form');
+        const resultsContainer = document.getElementById('results-container');
 
-            // 1. Read all input values from the form
+        function runSimulation(isBaseCase) {
             const formData = {
-                pls_flow: document.getElementById('pls_flow').value,
-                pls_cu: document.getElementById('pls_cu').value,
-                org_flow: document.getElementById('org_flow').value,
-                lean_electrolyte_cu: document.getElementById('lean_electrolyte_cu').value,
-                current_density: document.getElementById('current_density').value,
-                current_efficiency: document.getElementById('current_efficiency').value,
-                num_cells: document.getElementById('num_cells').value,
-                cathodes_per_cell: document.getElementById('cathodes_per_cell').value,
-                plating_area: document.getElementById('plating_area').value,
+                pls_flow: form.pls_flow.value,
+                pls_cu: form.pls_cu.value,
+                org_flow: form.org_flow.value,
+                lean_electrolyte_cu: form.lean_electrolyte_cu.value,
+                num_stages: form.num_stages.value,
+                current_density: form.current_density.value,
+                current_efficiency: form.current_efficiency.value,
+                num_cells: form.num_cells.value,
+                cathodes_per_cell: form.cathodes_per_cell.value,
+                plating_area: form.plating_area.value,
             };
 
-            // 2. Call the calculation functions
-            const sx_results = calculate_sx_performance(formData);
-            const ew_results = calculate_ew_performance(formData);
+            const base_sx_results = calculate_sx_performance({...formData, num_stages: form.num_stages.value});
+            const base_ew_results = calculate_ew_performance(formData);
 
-            // 3. Consultant Logic
-            let general_notes = [];
-            const pls_flow_val = parseFloat(formData.pls_flow);
-            const org_flow_val = parseFloat(formData.org_flow);
-            if (pls_flow_val > 0) {
-                const oa_ratio = org_flow_val / pls_flow_val;
-                if (oa_ratio < 0.9 || oa_ratio > 1.1) {
-                    general_notes.push(`The O/A ratio is ${oa_ratio.toFixed(2)}. A ratio far from the typical 1.0 can lead to poor stage efficiency or high entrainment losses.`);
-                }
+            let resultHTML = generateResultBoxHTML('سناریو پایه', base_sx_results, base_ew_results);
+
+            if (!isBaseCase) {
+                const optimizedFormData = {...formData, num_stages: parseInt(form.num_stages.value) + 1};
+                const opt_sx_results = calculate_sx_performance(optimizedFormData);
+                // EW results don't change in this scenario as production is tied to CD, not SX recovery.
+                resultHTML += generateResultBoxHTML(`سناریو بهینه (با ${optimizedFormData.num_stages} مرحله استخراج)`, opt_sx_results, base_ew_results);
+                resultHTML += generateComparisonNotes(base_sx_results, opt_sx_results);
             }
-            const current_density_val = parseFloat(formData.current_density);
-            if (current_density_val > 350) {
-                general_notes.push("High current density (> 350 A/m²) can decrease current efficiency and negatively impact cathode quality (e.g., roughness).");
-            } else if (current_density_val < 250) {
-                general_notes.push("Low current density (< 250 A/m²) is safer for cathode quality but may result in lower plant throughput than designed.");
-            }
+            resultsContainer.innerHTML = resultHTML;
+        }
 
-            // 4. Build the results HTML
-            const resultsContainer = document.getElementById('results-container');
-            if (sx_results.error || ew_results.error) {
-                resultsContainer.innerHTML = `<p style="color: red;">Error: ${sx_results.error || ew_results.error}</p>`;
-                return;
-            }
+        function generateResultBoxHTML(title, sx, ew) {
+            if (sx.error || ew.error) return `<p style="color: red;">Error: ${sx.error || ew.error}</p>`;
+            let stageRaffinates = sx.stage_results.map((r, i) => `مرحله ${i+1}: ${r} g/L`).join('<br>');
 
-            let notesHTML = '';
-            if (sx_results.consultant_notes_sx || ew_results.consultant_notes_ew || general_notes.length > 0) {
-                notesHTML = `<div class="notes"><h3>یادداشت‌های مشاور:</h3>`;
-                if (sx_results.consultant_notes_sx) notesHTML += `<p><strong>SX:</strong> ${sx_results.consultant_notes_sx}</p>`;
-                if (ew_results.consultant_notes_ew) notesHTML += `<p><strong>EW:</strong> ${ew_results.consultant_notes_ew}</p>`;
-                if (general_notes.length > 0) notesHTML += `<p><strong>General:</strong> ${general_notes.join(' ')}</p>`;
-                notesHTML += `</div>`;
-            }
+            return `<div class="results-box">
+                        <h3>${title}</h3>
+                        <div class="result-item"><strong>بازیابی کلی SX:</strong> ${sx.sx_recovery}%</div>
+                        <div class="result-item"><strong>رافینیت نهایی:</strong> ${sx.raffinate_cu} g/L</div>
+                        <div class="result-item"><strong>رافینیت هر مرحله:</strong><br>${stageRaffinates}</div>
+                        <div class="result-item"><strong>تولید مس EW:</strong> ${ew.copper_production_tpd} تن در روز</div>
+                    </div>`;
+        }
 
-            resultsContainer.innerHTML = `
-                <h2>نتایج شبیه‌سازی</h2>
-                <div class="results-grid">
-                    <div class="result-item"><strong>بازیابی مس (SX):</strong> ${sx_results.sx_recovery} %</div>
-                    <div class="result-item"><strong>غلظت مس رافینیت:</strong> ${sx_results.raffinate_cu} g/L</div>
-                    <div class="result-item"><strong>غلظت مس آلی باردار:</strong> ${sx_results.loaded_organic_cu} g/L</div>
-                    <div class="result-item"><strong>غلظت مس الکترولیت غنی:</strong> ${sx_results.rich_electrolyte_cu} g/L</div>
+        function generateComparisonNotes(base, optimized) {
+            const recovery_gain = optimized.sx_recovery - base.sx_recovery;
+            const raffinate_reduction = base.raffinate_cu - optimized.raffinate_cu;
+            return `<div class="notes">
+                        <h3>تحلیل مشاوره‌ای</h3>
+                        <p>افزودن یک مرحله استخراج، راندمان کلی را <strong>${recovery_gain.toFixed(2)}%</strong> افزایش داد و مس موجود در رافینیت را <strong>${raffinate_reduction.toFixed(3)} g/L</strong> کاهش داد. این به معنی تولید بیشتر با مقدار PLS یکسان است.</p>
+                        <p><strong>تصمیم‌گیری:</strong> آیا هزینه سرمایه‌گذاری و عملیاتی برای افزودن یک مرحله جدید، با توجه به این افزایش راندمان، توجیه‌پذیر است؟</p>
+                    </div>`;
+        }
 
-                    <div class="result-item"><strong>تولید مس (EW):</strong> ${ew_results.copper_production_tpd} تن در روز</div>
-                    <div class="result-item"><strong>مصرف انرژی ویژه:</strong> ${ew_results.energy_consumption_kwh_per_ton} kWh/ton</div>
-                    <div class="result-item"><strong>ولتاژ سلول (تخمینی):</strong> ${ew_results.cell_voltage_v} V</div>
-                    <div class="result-item"><strong>جریان کل رکتیفایر:</strong> ${ew_results.total_current_a} A</div>
-                    ${notesHTML}
-                </div>
-            `;
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            runSimulation(true);
+        });
+
+        document.getElementById('run-optimizer').addEventListener('click', () => {
+            runSimulation(false);
         });
     </script>
 </body>

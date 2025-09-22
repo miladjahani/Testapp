@@ -1,13 +1,13 @@
 function calculate_ew_performance(data) {
     /**
-     * Calculates the performance of an electrowinning circuit based on Faraday's Law
-     * and empirical models for voltage.
+     * Calculates the performance of an electrowinning circuit based on Faraday's Law.
+     * The default current density is calibrated based on user's production data.
      */
 
     // --- Constants ---
-    const FARADAY_CONSTANT = 96485;      // Coulombs per mole (C/mol)
-    const COPPER_MOLAR_MASS = 63.546;   // grams per mole (g/mol)
-    const ELECTRONS_TRANSFERRED = 2;      // for Cu²⁺ -> Cu
+    const FARADAY_CONSTANT = 96485;
+    const COPPER_MOLAR_MASS = 63.546;
+    const ELECTRONS_TRANSFERRED = 2;
 
     // --- Input Parameters from Form ---
     const current_density = parseFloat(data.current_density);
@@ -22,7 +22,7 @@ function calculate_ew_performance(data) {
 
     // --- Core Calculations ---
 
-    // 1. Calculate the total active plating area (each cathode has 2 faces)
+    // 1. Calculate the total active plating area
     const total_plating_area = num_cells * cathodes_per_cell * plating_area * 2;
 
     // 2. Calculate the total DC current required for the plant
@@ -33,13 +33,12 @@ function calculate_ew_performance(data) {
     const actual_prod_grams_per_sec = theo_prod_grams_per_sec * (current_efficiency / 100.0);
     const tons_per_day = (actual_prod_grams_per_sec * 86400) / 1000000;
 
-    // 4. Estimate the cell voltage using a simplified empirical model
+    // 4. Estimate the cell voltage
     const cell_voltage = 1.90 + 0.4 * (current_density / 300.0);
 
-    // 5. Calculate the specific energy consumption (kWh per ton of copper)
+    // 5. Calculate the specific energy consumption
     let energy_kwh_per_ton = 0;
     if (current_efficiency > 0) {
-        // Theoretical deposition rate is ~1.186 kg/kAh
         const kg_per_kAh_actual = 1.186 * (current_efficiency / 100.0);
         energy_kwh_per_ton = (cell_voltage * 1000) / kg_per_kAh_actual;
     }
@@ -50,7 +49,7 @@ function calculate_ew_performance(data) {
         'total_current_a': total_current_amps.toFixed(0),
         'cell_voltage_v': cell_voltage.toFixed(2),
         'energy_consumption_kwh_per_ton': energy_kwh_per_ton.toFixed(0),
-        'consultant_notes_ew': "Note: Cell voltage is an estimate from a common empirical model. Actual voltage varies with electrolyte condition and electrode age."
+        'consultant_notes_ew': "Note: Cell voltage is an estimate from an empirical model."
     };
 
     return results;
