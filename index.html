@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشاور بهینه‌سازی SX-EW (نسخه استاتیک)</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.6; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1, h2 { color: #0056b3; border-bottom: 2px solid #0056b3; padding-bottom: 10px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; }
+        label { font-weight: bold; margin-bottom: 5px; }
+        input[type="number"] { padding: 8px; border: 1px solid #ccc; border-radius: 4px; direction: ltr; }
+        button { grid-column: span 2; background-color: #0056b3; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        button:hover { background-color: #004494; }
+        .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background-color: #eef7ff; padding: 15px; border-radius: 5px; margin-top: 20px; }
+        .result-item { font-size: 1.1em; }
+        .result-item strong { color: #0056b3; }
+        .notes { grid-column: span 2; margin-top: 15px; font-style: italic; color: #555; background-color: #f8f9fa; padding: 10px; border-left: 4px solid #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>مشاور بهینه‌سازی SX-EW (نسخه کلاینت ساید)</h1>
+
+        <form id="calculation-form">
+            <h2>۱. مشخصات واحد استخراج حلالی (SX)</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="pls_flow">دبی محلول باردار (m³/h)</label>
+                    <input type="number" id="pls_flow" name="pls_flow" value="100" step="any" required>
+                </div>
+                <div class="form-group">
+                    <label for="pls_cu">غلظت مس محلول باردار (g/L)</label>
+                    <input type="number" id="pls_cu" name="pls_cu" value="3.0" step="any" required>
+                </div>
+                <div class="form-group">
+                    <label for="org_flow">دبی فاز آلی (m³/h)</label>
+                    <input type="number" id="org_flow" name="org_flow" value="100" step="any" required>
+                </div>
+                <div class="form-group">
+                    <label for="lean_electrolyte_cu">غلظت مس الکترولیت فقیر (g/L)</label>
+                    <input type="number" id="lean_electrolyte_cu" name="lean_electrolyte_cu" value="35.0" step="any" required>
+                </div>
+            </div>
+
+            <h2>۲. مشخصات واحد الکترووینینگ (EW)</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="current_density">چگالی جریان (A/m²)</label>
+                    <input type="number" id="current_density" name="current_density" value="300" step="any" required>
+                </div>
+                <div class="form-group">
+                    <label for="current_efficiency">راندمان جریانی (%)</label>
+                    <input type="number" id="current_efficiency" name="current_efficiency" value="95" step="any" required>
+                </div>
+                <div class="form-group">
+                    <label for="num_cells">تعداد سلول‌ها</label>
+                    <input type="number" id="num_cells" name="num_cells" value="150" required>
+                </div>
+                <div class="form-group">
+                    <label for="cathodes_per_cell">تعداد کاتدها در هر سلول</label>
+                    <input type="number" id="cathodes_per_cell" name="cathodes_per_cell" value="60" required>
+                </div>
+                <div class="form-group">
+                    <label for="plating_area">سطح مفید هر وجه کاتد (m²)</label>
+                    <input type="number" id="plating_area" name="plating_area" value="1.0" step="any" required>
+                </div>
+            </div>
+
+            <button type="submit">محاسبه و بهینه‌سازی</button>
+        </form>
+
+        <div id="results-container">
+            <!-- Results will be dynamically injected here by JavaScript -->
+        </div>
+    </div>
+
+    <script src="js/sx_model.js"></script>
+    <script src="js/ew_model.js"></script>
+    <script>
+        document.getElementById('calculation-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // 1. Read all input values from the form
+            const formData = {
+                pls_flow: document.getElementById('pls_flow').value,
+                pls_cu: document.getElementById('pls_cu').value,
+                org_flow: document.getElementById('org_flow').value,
+                lean_electrolyte_cu: document.getElementById('lean_electrolyte_cu').value,
+                current_density: document.getElementById('current_density').value,
+                current_efficiency: document.getElementById('current_efficiency').value,
+                num_cells: document.getElementById('num_cells').value,
+                cathodes_per_cell: document.getElementById('cathodes_per_cell').value,
+                plating_area: document.getElementById('plating_area').value,
+            };
+
+            // 2. Call the calculation functions
+            const sx_results = calculate_sx_performance(formData);
+            const ew_results = calculate_ew_performance(formData);
+
+            // 3. Consultant Logic
+            let general_notes = [];
+            const pls_flow_val = parseFloat(formData.pls_flow);
+            const org_flow_val = parseFloat(formData.org_flow);
+            if (pls_flow_val > 0) {
+                const oa_ratio = org_flow_val / pls_flow_val;
+                if (oa_ratio < 0.9 || oa_ratio > 1.1) {
+                    general_notes.push(`The O/A ratio is ${oa_ratio.toFixed(2)}. A ratio far from the typical 1.0 can lead to poor stage efficiency or high entrainment losses.`);
+                }
+            }
+            const current_density_val = parseFloat(formData.current_density);
+            if (current_density_val > 350) {
+                general_notes.push("High current density (> 350 A/m²) can decrease current efficiency and negatively impact cathode quality (e.g., roughness).");
+            } else if (current_density_val < 250) {
+                general_notes.push("Low current density (< 250 A/m²) is safer for cathode quality but may result in lower plant throughput than designed.");
+            }
+
+            // 4. Build the results HTML
+            const resultsContainer = document.getElementById('results-container');
+            if (sx_results.error || ew_results.error) {
+                resultsContainer.innerHTML = `<p style="color: red;">Error: ${sx_results.error || ew_results.error}</p>`;
+                return;
+            }
+
+            let notesHTML = '';
+            if (sx_results.consultant_notes_sx || ew_results.consultant_notes_ew || general_notes.length > 0) {
+                notesHTML = `<div class="notes"><h3>یادداشت‌های مشاور:</h3>`;
+                if (sx_results.consultant_notes_sx) notesHTML += `<p><strong>SX:</strong> ${sx_results.consultant_notes_sx}</p>`;
+                if (ew_results.consultant_notes_ew) notesHTML += `<p><strong>EW:</strong> ${ew_results.consultant_notes_ew}</p>`;
+                if (general_notes.length > 0) notesHTML += `<p><strong>General:</strong> ${general_notes.join(' ')}</p>`;
+                notesHTML += `</div>`;
+            }
+
+            resultsContainer.innerHTML = `
+                <h2>نتایج شبیه‌سازی</h2>
+                <div class="results-grid">
+                    <div class="result-item"><strong>بازیابی مس (SX):</strong> ${sx_results.sx_recovery} %</div>
+                    <div class="result-item"><strong>غلظت مس رافینیت:</strong> ${sx_results.raffinate_cu} g/L</div>
+                    <div class="result-item"><strong>غلظت مس آلی باردار:</strong> ${sx_results.loaded_organic_cu} g/L</div>
+                    <div class="result-item"><strong>غلظت مس الکترولیت غنی:</strong> ${sx_results.rich_electrolyte_cu} g/L</div>
+
+                    <div class="result-item"><strong>تولید مس (EW):</strong> ${ew_results.copper_production_tpd} تن در روز</div>
+                    <div class="result-item"><strong>مصرف انرژی ویژه:</strong> ${ew_results.energy_consumption_kwh_per_ton} kWh/ton</div>
+                    <div class="result-item"><strong>ولتاژ سلول (تخمینی):</strong> ${ew_results.cell_voltage_v} V</div>
+                    <div class="result-item"><strong>جریان کل رکتیفایر:</strong> ${ew_results.total_current_a} A</div>
+                    ${notesHTML}
+                </div>
+            `;
+        });
+    </script>
+</body>
+</html>
